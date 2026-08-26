@@ -121,7 +121,8 @@ class _TitleClassState extends State<TitleClass> {
                 color: Colors.black87,
               ),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: 7.w),
+
             const Icon(
               AppIcon.adminProfile,
               size: 26,
