@@ -116,7 +116,7 @@ class _TitleClassState extends State<TitleClass> {
             const Text(
               "Hello Admin",
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 17 ,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
