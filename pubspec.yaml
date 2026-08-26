@@ -1,0 +1,45 @@
+name: grocery_admin_panel
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5+1
+  flutter_screenutil: ^5.9.3
+  iconsax_flutter: ^1.0.1
+  image_picker: ^1.2.3
+  flutter_svg: ^2.0.17
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^6.0.0
+
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+    - family: poppinsbold
+      fonts:
+        - asset: assets/fonts/Poppins-Bold.ttf
+
+
+  assets:
+    - assets/images/
