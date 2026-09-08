@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_admin_panel/model/product_model.dart';
 import 'package:grocery_admin_panel/screen/categories/category_provider.dart';
@@ -21,35 +22,32 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String searchQuery = "";
   bool showProductDetail = false;
   ProductModel? selectedProduct;
+ // final product = ProductProvider().products;
   final TextEditingController searchController = TextEditingController();
 
-  late List<ProductModel> localProductList;
-  List<ProductModel> get filteredProducts {
-    return localProductList.where((p) {
-      final bool matchesCategory;
-      if (selectedButton == "All Products") {
-        matchesCategory = true;
-      } else {
-        final pCat = p.category.trim().toLowerCase();
-        final sCat = selectedButton.trim().toLowerCase();
-        matchesCategory =
-            pCat == sCat || pCat.contains(sCat) || sCat.contains(pCat);
-      }
+ // late List<ProductModel> localProductList;
+ //  List<ProductModel> get filteredProducts {
+ //    return product.where((p) {
+ //      final bool matchesCategory;
+ //      if (selectedButton == "All Products") {
+ //        matchesCategory = true;
+ //      } else {
+ //        final pCat = p.category.trim().toLowerCase();
+ //        final sCat = selectedButton.trim().toLowerCase();
+ //        matchesCategory =
+ //            pCat == sCat || pCat.contains(sCat) || sCat.contains(pCat);
+ //      }
+ //
+ //      final bool matchesSearch =
+ //          searchQuery.isEmpty ||
+ //          p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+ //          p.id.toString().contains(searchQuery);
+ //
+ //      return matchesCategory && matchesSearch;
+ //    }).toList();
+ //  }
 
-      final bool matchesSearch =
-          searchQuery.isEmpty ||
-          p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          p.id.toString().contains(searchQuery);
 
-      return matchesCategory && matchesSearch;
-    }).toList();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    localProductList = List.from(productList);
-  }
 
   @override
   void dispose() {
@@ -90,12 +88,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                localProductList.removeWhere((p) => p.id == product.id);
-              });
-              Navigator.pop(ctx);
+            onPressed: (){
+              ProductProvider().deleteProduct(product.id);
             },
+            // onPressed: () {
+            //   setState(() {
+            //     ProductProvider().deleteProduct(product.id);
+            //   //  localProductList.removeWhere((p) => p.id == product.id);
+            //   });
+            //   Navigator.pop(ctx);
+            // },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.dltRed,
               foregroundColor: AppColor.bg1,
@@ -114,6 +116,25 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
+    final productProvider = context.watch<ProductProvider>();
+
+    final products = productProvider.products;
+    final filteredProducts = products.where((p) {
+      final bool matchesCategory;
+      if (selectedButton == "All Products") {
+        matchesCategory = true;
+      } else {
+        final pCat = p.category.trim().toLowerCase();
+        final sCat = selectedButton.trim().toLowerCase();
+        matchesCategory =
+            pCat == sCat || pCat.contains(sCat) || sCat.contains(pCat);
+      }
+      final bool matchesSearch =
+          searchQuery.isEmpty ||
+              p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              p.id.toLowerCase().contains(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }).toList();
     final buttonList = [
       "All Products",
       ...categoryProvider.categories.map((c) => c.name),
@@ -129,13 +150,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
         },
         onSave: (savedProduct) {
           setState(() {
-            final existingIndex = localProductList.indexWhere(
+            final existingIndex = products.indexWhere(
               (p) => p.id == savedProduct.id,
             );
             if (existingIndex != -1) {
-              localProductList[existingIndex] = savedProduct;
+              products[existingIndex] = savedProduct;
             } else {
-              localProductList.insert(0, savedProduct);
+              products.insert(0, savedProduct);
             }
             showProductDetail = false;
           });
@@ -335,10 +356,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 ),
                             itemBuilder: (context, index) {
                               final product = filteredProducts[index];
-                              final (categoryBgColor, categoryTextColor) =
-                                  categoryProvider.getCategoryColors(
-                                    product.category,
-                                  );
+                              // final (categoryBgColor, categoryTextColor) =
+                              //     categoryProvider.getCategoryColors(
+                              //       product.category,
+                              //     );
 
                               return Container(
                                 padding: EdgeInsets.all(14.r),
@@ -375,7 +396,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             vertical: 4.h,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: categoryBgColor,
+                                         //   color: categoryBgColor,
                                             borderRadius: BorderRadius.circular(
                                               6.r,
                                             ),
@@ -385,66 +406,29 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             style: TextStyle(
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w600,
-                                              color: categoryTextColor,
+                                         //     color: categoryTextColor,
                                             ),
                                           ),
                                         ),
-                                        Text(
-                                          "#PRD-${product.id}",
-                                          style: TextStyle(
-                                            fontSize: 11.sp,
-                                            color: AppColor.textGray,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
+                                        // Text(
+                                        //   "#PRD-${product.id}",
+                                        //   style: TextStyle(
+                                        //     fontSize: 11.sp,
+                                        //     color: AppColor.textGray,
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                     // Center Product Icon Avatar
                                     Center(
-                                      child: Container(
-                                        width: 60.r,
-                                        height: 60.r,
-                                        decoration: BoxDecoration(
-                                          color: product.bgColor,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: product.imageBytes != null
-                                            ? ClipOval(
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(4.r),
-                                                  child: Image.memory(
-                                                    product.imageBytes!,
-                                                    width: 60.r,
-                                                    height: 60.r,
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              )
-                                            : (product.image != null && product.image!.isNotEmpty)
-                                                ? ClipOval(
-                                                    child: Padding(
-                                                      padding: EdgeInsets.all(4.r),
-                                                      child: Image.asset(
-                                                        product.image!,
-                                                        width: 60.r,
-                                                        height: 60.r,
-                                                        fit: BoxFit.contain,
-                                                        errorBuilder: (context, error, stackTrace) => const Icon(
-                                                          Icons.image_outlined,
-                                                          size: 28,
-                                                          color: Colors.black54,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const Icon(
-                                                    Icons.image_outlined,
-                                                    size: 28,
-                                                    color: Colors.black54,
-                                                  ),
+                                      child: CircleAvatar(
+                                        radius:  35.r,
+                                        backgroundColor: product.bgColor,
+                                        child: Image.network(product.image,height: 40,width: 40,),
                                       ),
                                     ),
-                                    // Product Name
+                                 //Product Name
                                     Center(
                                       child: Text(
                                         product.name,
@@ -545,8 +529,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                         SizedBox(width: 8.w),
                                         // Delete Button
                                         InkWell(
-                                          onTap: () =>
-                                              showDeleteDialog(product),
+
+                                          onTap: () async {
+                                            await context.read<ProductProvider>().deleteProduct(product.id);
+                                            // if (context.mounted) {
+                                            //   Navigator.pop(context);
+                                            // }
+                              },
                                           borderRadius: BorderRadius.circular(
                                             8.r,
                                           ),

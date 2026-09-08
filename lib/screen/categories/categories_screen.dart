@@ -10,107 +10,39 @@ import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
 import 'package:grocery_admin_panel/utils/app_icon.dart';
 
-Color colorFromHex(String hexColor) {
-  final hexCode = hexColor.replaceAll('#', '');
-  return Color(int.parse('FF$hexCode', radix: 16));
-}
-
-// Color palette shades for category background
-const List<String> categoryColors = [
+// Color palette shades for category background (ARGB32)
+const List<int> categoryColors = [
   // Red
-  '#FFF1F0', '#FFE4E1', '#FFCCC7', '#FFA39E', '#FF7875',
-  '#FF4D4F', '#F5222D', '#CF1322', '#A8071A', '#820014',
+  0xFFFFF1F0, 0xFFFFE4E1, 0xFFFFCCC7, 0xFFFFA39E, 0xFFFF7875,
+  0xFFFF4D4F, 0xFFF5222D, 0xFFCF1322, 0xFFA8071A, 0xFF820014,
   // Green
-  '#F6FFED', '#E6F2EA', '#D9F7BE', '#B7EB8F', '#95DE64',
-  '#52C41A', '#389E0D', '#237804', '#135200', '#092B00',
+  0xFFF6FFED, 0xFFE6F2EA, 0xFFD9F7BE, 0xFFB7EB8F, 0xFF95DE64,
+  0xFF52C41A, 0xFF389E0D, 0xFF237804, 0xFF135200, 0xFF092B00,
   // Pink
-  '#FFF0F6', '#FEE1ED', '#FFD6E7', '#FFADD2', '#FF85C0',
-  '#F759AB', '#EB2F96', '#C41D7F', '#9E1068', '#780650',
+  0xFFFFF0F6, 0xFFFEE1ED, 0xFFFFD6E7, 0xFFFFADD2, 0xFFFF85C0,
+  0xFFF759AB, 0xFFEB2F96, 0xFFC41D7F, 0xFF9E1068, 0xFF780650,
   // Yellow
-  '#FEFFE6', '#FFFBE6', '#FFF1B8', '#FFE58F', '#FFD666',
-  '#FFC53D', '#FAAD14', '#D48806', '#AD6800', '#874D00',
+  0xFFFEFFE6, 0xFFFFFBE6, 0xFFFFF1B8, 0xFFFFE58F, 0xFFFFD666,
+  0xFFFFC53D, 0xFFFAAD14, 0xFFD48806, 0xFFAD6800, 0xFF874D00,
   // Orange
-  '#FFF7E6', '#FFE7BA', '#FFD591', '#FFC069', '#FFA940',
-  '#FA8C16', '#D46B08', '#AD4E00', '#873800', '#612500',
+  0xFFFFF7E6, 0xFFFFE7BA, 0xFFFFD591, 0xFFFFC069, 0xFFFFA940,
+  0xFFFA8C16, 0xFFD46B08, 0xFFAD4E00, 0xFF873800, 0xFF612500,
   // Blue
-  '#E6F7FF', '#BAE7FF', '#91D5FF', '#69C0FF', '#40A9FF',
-  '#1890FF', '#096DD9', '#0050B3', '#003A8C', '#002766',
+  0xFFE6F7FF, 0xFFBAE7FF, 0xFF91D5FF, 0xFF69C0FF, 0xFF40A9FF,
+  0xFF1890FF, 0xFF096DD9, 0xFF0050B3, 0xFF003A8C, 0xFF002766,
   // Purple
-  '#F9F0FF', '#EFDBFF', '#D3ADF7', '#B37FEB', '#9254DE',
-  '#722ED1', '#531DAB', '#391085', '#22075E', '#120338',
+  0xFFF9F0FF, 0xFFEFDBFF, 0xFFD3ADF7, 0xFFB37FEB, 0xFF9254DE,
+  0xFF722ED1, 0xFF531DAB, 0xFF391085, 0xFF22075E, 0xFF120338,
   // Teal
-  '#E6FFFB', '#B5F5EC', '#87E8DE', '#5CDBD3', '#36CFC9',
-  '#13C2C2', '#08979C', '#006D75', '#00474F', '#002329',
+  0xFFE6FFFB, 0xFFB5F5EC, 0xFF87E8DE, 0xFF5CDBD3, 0xFF36CFC9,
+  0xFF13C2C2, 0xFF08979C, 0xFF006D75, 0xFF00474F, 0xFF002329,
   // Brown
-  '#FDF8F5', '#F7EBE1', '#EDD5C1', '#DFBB9E', '#CFA07C',
-  '#B88258', '#9C643B', '#7E4924', '#5E3113', '#3E1C07',
+  0xFFFDF8F5, 0xFFF7EBE1, 0xFFEDD5C1, 0xFFDFBB9E, 0xFFCFA07C,
+  0xFFB88258, 0xFF9C643B, 0xFF7E4924, 0xFF5E3113, 0xFF3E1C07,
   // Gray
-  '#FAFAFA', '#F5F5F5', '#E8E8E8', '#D9D9D9', '#BFBFBF',
-  '#8C8C8C', '#595959', '#434343', '#262626', '#141414',
+  0xFFFAFAFA, 0xFFF5F5F5, 0xFFE8E8E8, 0xFFD9D9D9, 0xFFBFBFBF,
+  0xFF8C8C8C, 0xFF595959, 0xFF434343, 0xFF262626, 0xFF141414,
 ];
-
-// Calculate contrast text/icon color for background
-Color calculateFgColor(Color bgColor) {
-  final luminance = bgColor.computeLuminance();
-  if (luminance < 0.25) return Colors.white;
-  final hsl = HSLColor.fromColor(bgColor);
-  final darkened = hsl
-      .withLightness((hsl.lightness - 0.40).clamp(0.18, 0.42))
-      .withSaturation((hsl.saturation + 0.30).clamp(0.5, 1.0));
-  return darkened.toColor();
-}
-
-// Category image widget helper (supports svg, asset and picked bytes)
-Widget buildCategoryImage({
-  required String imagePath,
-  Uint8List? imageBytes,
-  double? width,
-  double? height,
-  Color? fallbackColor,
-}) {
-  if (imageBytes != null) {
-    return Image.memory(
-      imageBytes,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-    );
-  }
-
-  if (imagePath.isNotEmpty) {
-    if (imagePath.toLowerCase().endsWith('.svg')) {
-      return SvgPicture.asset(
-        imagePath,
-        width: width,
-        height: height,
-        fit: BoxFit.contain,
-        placeholderBuilder: (context) => Icon(
-          Icons.category_outlined,
-          size: width != null ? (width * 0.6) : 28,
-          color: fallbackColor ?? Colors.black54,
-        ),
-      );
-    } else {
-      return Image.asset(
-        imagePath,
-        width: width,
-        height: height,
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) => Icon(
-          Icons.category_outlined,
-          size: width != null ? (width * 0.6) : 28,
-          color: fallbackColor ?? Colors.black54,
-        ),
-      );
-    }
-  }
-
-  return Icon(
-    Icons.category_outlined,
-    size: width != null ? (width * 0.6) : 28,
-    color: fallbackColor ?? Colors.black54,
-  );
-}
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -120,7 +52,7 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  final ImagePicker picker = ImagePicker();
+ // final ImagePicker picker = ImagePicker();
   final TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 
@@ -136,10 +68,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final TextEditingController nameController = TextEditingController(
       text: isEdit ? category.name : '',
     );
-    Uint8List? dialogImageBytes = isEdit ? category.imageBytes : null;
-    String existingImagePath = isEdit ? category.image : '';
-    Color selectedBgColor = isEdit ? category.bgColor : const Color(0xffE6F2EA);
+    final TextEditingController imageController = TextEditingController(
+      text: isEdit ? category.image : '',
+    );
+    /// String existingImagePath = isEdit ? category.image : '';
+    Color selectedBgColor = isEdit ? category.bgColor :  Color(categoryColors.first);
     bool isNameEmpty = false;
+    bool isImageUrlEmpty = false;
 
     showDialog<void>(
       context: context,
@@ -257,106 +192,75 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         SizedBox(height: 20.h),
 
                         // Image picker section
-                        const Text(
-                          "Category Image",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColor.textGray,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        InkWell(
-                          onTap: () async {
-                            final XFile? image = await picker.pickImage(
-                              source: ImageSource.gallery,
-                              maxWidth: 400,
-                              maxHeight: 400,
-                            );
-                            if (image != null) {
-                              final bytes = await image.readAsBytes();
-                              setDialogState(() {
-                                dialogImageBytes = bytes;
-                              });
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(16.r),
-                          child: Container(
-                            width: double.infinity,
-                            height: 160.h,
-                            decoration: BoxDecoration(
-                              color: selectedBgColor,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: AppColor.dividerLine,
-                                width: 1.5,
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 60.w,
+                              child: const Text(
+                                "Image",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.textGray,
+                                ),
                               ),
                             ),
-                            child:
-                                (dialogImageBytes != null ||
-                                    existingImagePath.isNotEmpty)
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.r),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.all(12.r),
-                                          child: buildCategoryImage(
-                                            imagePath: existingImagePath,
-                                            imageBytes: dialogImageBytes,
-                                            width: 80.r,
-                                            height: 80.r,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          bottom: 8.h,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 12.w,
-                                              vertical: 4.h,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.6,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.r),
-                                            ),
-                                            child: Text(
-                                              "Click to change image",
-                                              style: TextStyle(
-                                                fontSize: 11.sp,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add_photo_alternate_outlined,
-                                        size: 36.r,
-                                        color: AppColor.textGray,
-                                      ),
-                                      SizedBox(height: 6.h),
-                                      Text(
-                                        "Click to upload image from gallery",
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColor.textGray,
-                                        ),
-                                      ),
-                                    ],
+
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: TextField(
+                                controller: imageController,
+                                onChanged: (val) {
+                                  if (isImageUrlEmpty &&
+                                      val.trim().isNotEmpty) {
+                                    setDialogState(() {
+                                      isImageUrlEmpty = false;
+                                    });
+                                  }
+                                },
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  hintText: "Enter category name",
+                                  hintStyle: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppColor.textGray,
                                   ),
-                          ),
+                                  errorText: isImageUrlEmpty
+                                      ? "Image Url cannot be empty"
+                                      : null,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 14.w,
+                                    vertical: 10.h,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderSide: const BorderSide(
+                                      color: AppColor.dividerLine,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderSide: const BorderSide(
+                                      color: AppColor.dividerLine,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderSide: const BorderSide(
+                                      color: AppColor.animationGreen,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+
                         SizedBox(height: 20.h),
 
                         // Background color selector
@@ -382,11 +286,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             child: Wrap(
                               spacing: 6.w,
                               runSpacing: 6.h,
-                              children: categoryColors.map((hex) {
-                                final color = colorFromHex(hex);
+                              children: categoryColors.map((argb) {
+                                final color = Color(argb);
                                 final bool isSelected =
-                                    selectedBgColor.toARGB32() ==
-                                    color.toARGB32();
+                                    selectedBgColor.toARGB32() == argb;
                                 final bool isDark =
                                     color.computeLuminance() < 0.45;
 
@@ -445,59 +348,40 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                             SizedBox(width: 12.w),
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (nameController.text.trim().isEmpty) {
                                   setDialogState(() {
                                     isNameEmpty = true;
                                   });
                                   return;
                                 }
-
-                                final Color chosenBg = selectedBgColor;
-                                final Color chosenFg = calculateFgColor(
-                                  chosenBg,
-                                );
-
+                                if (imageController.text.trim().isEmpty) {
+                                  setDialogState(() {
+                                    isImageUrlEmpty = true;
+                                  });
+                                  return;
+                                }
                                 if (isEdit) {
-                                  final updatedCat = CategoryModel(
-                                    id: category.id,
-                                    name: nameController.text.trim(),
-                                    image: dialogImageBytes != null
-                                        ? ''
-                                        : category.image,
-                                    imageBytes:
-                                        dialogImageBytes ?? category.imageBytes,
-                                    bgColor: chosenBg,
-                                    foregroundColor: chosenFg,
-                                  );
-                                  context
+                                  await context
                                       .read<CategoryProvider>()
-                                      .updateCategory(updatedCat);
-                                } else {
-                                  final categories = context
+                                      .updateCategory(
+                                        id: category.id,
+                                        name: nameController.text.trim(),
+                                        image: imageController.text.trim(),
+                                        bgColor: selectedBgColor,
+                                      );
+                                }else {
+                                  await context
                                       .read<CategoryProvider>()
-                                      .categories;
-                                  final newId = categories.isEmpty
-                                      ? 1
-                                      : ((categories
-                                                .map((e) => e.id ?? 0)
-                                                .reduce(
-                                                  (a, b) => a > b ? a : b,
-                                                )) +
-                                            1);
-                                  final newCat = CategoryModel(
-                                    id: newId,
+                                      .addCategory(
                                     name: nameController.text.trim(),
-                                    imageBytes: dialogImageBytes,
-                                    bgColor: chosenBg,
-                                    foregroundColor: chosenFg,
-                                  );
-                                  context.read<CategoryProvider>().addCategory(
-                                    newCat,
+                                    bgColor: selectedBgColor,
+                                    image: imageController.text.trim(),
                                   );
                                 }
-
-                                Navigator.pop(ctx);
+                                if(context.mounted) {
+                                  Navigator.pop(ctx);
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColor.animationGreen,
@@ -711,8 +595,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 ),
                             itemBuilder: (context, index) {
                               final category = filteredCategories[index];
-                              final productCount = categoryProvider
-                                  .getProductCount(category.name);
+                              final productCount = categoryProvider.getProductCount(category.name);
 
                               return Container(
                                 padding: EdgeInsets.symmetric(
@@ -743,19 +626,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                   children: [
                                     // Avatar
                                     CircleAvatar(
-                                      radius: 30.r,
+                                      radius: 40.r,
                                       backgroundColor: category.bgColor,
                                       child: ClipOval(
-                                        child: Padding(
-                                          padding: EdgeInsets.all(7.r),
-                                          child: buildCategoryImage(
-                                            imagePath: category.image,
-                                            imageBytes: category.imageBytes,
-                                            width: 36.r,
-                                            height: 36.r,
-                                            fallbackColor:
-                                                category.foregroundColor,
-                                          ),
+                                        child: Image.network(
+                                          category.image,
+                                          width: 45,
+                                          height: 45,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
                                     ),
@@ -773,7 +651,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                       ),
                                     ),
 
-                                    // Product count
+                                  //  Product count
                                     Text(
                                       "$productCount ${productCount == 1 ? 'Product' : 'Products'}",
                                       style: TextStyle(

@@ -1,21 +1,32 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
-/// Model representing a product category
 class CategoryModel {
-  final int? id;
+  final String id;
+ final String image;
   final String name;
-  final String image;
-  final Uint8List? imageBytes;
   final Color bgColor;
-  final Color foregroundColor;
-
-  const CategoryModel({
-    this.id,
+  CategoryModel({
+    required this.id,
     required this.name,
-    this.image = '',
-    this.imageBytes,
+    required this.image,
     required this.bgColor,
-    required this.foregroundColor,
   });
+
+  factory CategoryModel.fromFirestore(Map<String, dynamic> data, String id) {
+    return CategoryModel(
+      id: id,
+      name: data['name'] ?? '',
+      image: data['image'] ?? '',
+      bgColor: Color(data['bgColor']),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'image': image,
+      'bgColor': bgColor.toARGB32(),
+    };
+  }
 }
