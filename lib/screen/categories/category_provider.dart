@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_admin_panel/model/category_model.dart';
+import 'package:grocery_admin_panel/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:grocery_admin_panel/screen/products/product_data.dart';
 
 class CategoryProvider extends ChangeNotifier {
-  
   final CollectionReference categoryCollection = FirebaseFirestore.instance
       .collection("categories");
 
@@ -56,13 +56,21 @@ class CategoryProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> deleteCategory(String id) async {
-    await categoryCollection.doc(id).delete();
+  Future<void> deleteCategory(String id, String categoryName) async {
+ //   await categoryCollection.doc(id).delete();
+    final firestore = FirebaseFirestore.instance;
+    final batch = firestore.batch();
+    final productSnapshot = await firestore.collection("products").where("category", isEqualTo: categoryName).get();
+    for (var doc in productSnapshot.docs){
+      batch.delete(doc.reference);
+    }
+    batch.delete(categoryCollection.doc(id));
+    await batch.commit();
   }
 
-  int getProductCount(String categoryName) {
+  int getProductCount(String categoryName, List<ProductModel> products) {
     final catName = categoryName.trim().toLowerCase();
-    return ProductProvider().products.where((p) {
+    return products.where((p) {
       final pCat = p.category.trim().toLowerCase();
       return pCat == catName ||
           pCat.contains(catName) ||

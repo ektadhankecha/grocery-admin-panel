@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:grocery_admin_panel/screen/dashboard/recent_order_data.dart';
-import 'package:grocery_admin_panel/screen/dashboard/top_product_data.dart';
+import 'package:grocery_admin_panel/screen/customers/customer_provider.dart';
+import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
 import 'package:grocery_admin_panel/utils/app_icon.dart';
+import 'package:grocery_admin_panel/screen/orders/order_provider.dart';
+import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,20 +16,25 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-
   static const List<String> periodList = ['Weekly', 'Monthly', 'Annual'];
   String selectedPeriod = 'Weekly';
 
-
-
   @override
   Widget build(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
+    final orderProvider = context.watch<OrderProvider>();
+    final customerProvider = context.watch<CustomerProvider>();
+    final top10Order = orderProvider.orderList.take(10).toList();
+    final top10Product = productProvider.products.take(10).toList();
+      final order = orderProvider.orderList.length;
+      final product = productProvider.products.length;
+      final customer = customerProvider.customers.length;
     return Scaffold(
       backgroundColor: AppColor.bg3,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-         TitleClass(title: "Dash Board"),
+          TitleClass(title: "Dash Board"),
           SizedBox(height: 30.h),
           // Row with 4 Dashboard Cards
           Row(
@@ -40,24 +47,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 description: "increased by 10%",
               ),
               DashboardCard(
-
                 title: "Total Order",
                 icon: AppIcon.orders,
-                data: "130",
+                data: order.toString(),
                 description: "decreased by 15%",
               ),
               DashboardCard(
-
                 title: "Total Product",
                 icon: AppIcon.products,
-                data: "48",
+                data: product.toString(),
                 description: "decreased by 4%",
               ),
               DashboardCard(
-
                 title: "Total Customer",
                 icon: AppIcon.customers,
-                data: "300",
+                data: customer.toString(),
                 description: "increased by 2%",
               ),
             ],
@@ -92,7 +96,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
                               height: 30,
                               decoration: BoxDecoration(
                                 color: AppColor.bg3,
@@ -132,9 +138,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 18),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: topProductList.length,
+                            itemCount: top10Product.length,
                             itemBuilder: (context, index) {
-                              final product = topProductList[index];
+                              final product = top10Product[index];
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
@@ -142,14 +148,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
                                   leading: CircleAvatar(
                                     radius: 30,
-                                    backgroundColor: product.iconBgColor,
-                                    child: Icon(
-                                      product.icon,
-                                      color: product.iconColor,
-                                      size: 30,
+                                    backgroundColor: product.bgColor,
+                                    child: Image.network(
+                                      product.image,
+                                      width: 30,
+                                      height: 30,
                                     ),
                                   ),
                                   title: Text(
@@ -160,7 +168,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    product.unit,
+                                    product.quantity,
                                     style: const TextStyle(
                                       color: AppColor.textGray,
                                       fontSize: 12,
@@ -230,24 +238,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: SizedBox(
                               width: double.infinity,
                               child: DataTable(
-                                headingRowColor: WidgetStateProperty.all(AppColor.bg3),
+                                headingRowColor: WidgetStateProperty.all(
+                                  AppColor.bg3,
+                                ),
                                 columns: const [
-                                  DataColumn(label: Text('ID', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Product', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text('Customer', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  DataColumn(
+                                    label: Text(
+                                      'ID',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Product',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Date',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Status',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Price',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Customer',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
-                                rows: recentOrderList.map((order) {
+                                rows: top10Order.map((order) {
                                   return DataRow(
                                     cells: [
-                                      DataCell(Text(order['id'].toString())),
-                                      DataCell(Text(order['name'].toString())),
-                                      DataCell(Text(order['date'].toString())),
-                                      DataCell(Text(order['status'].toString())),
-                                      DataCell(Text(order['price'].toString())),
-                                      DataCell(Text(order['customer'].toString())),
+                                      DataCell(
+                                        Text(order.orderNumber.toString()),
+                                      ),
+                                      DataCell(
+                                        Text(order.productName.toString()),
+                                      ),
+                                      DataCell(
+                                        Text(order.orderDate.toString()),
+                                      ),
+                                      DataCell(Text(order.status.toString())),
+                                      DataCell(
+                                        Text(order.totalPrice.toString()),
+                                      ),
+                                      DataCell(Text(order.name.toString())),
                                     ],
                                   );
                                 }).toList(),
@@ -274,13 +334,12 @@ class DashboardCard extends StatelessWidget {
   final String description;
   final IconData icon;
 
-
   const DashboardCard({
     super.key,
-   required this.data ,
-   required this.title ,
+    required this.data,
+    required this.title,
     required this.description,
-    required this.icon
+    required this.icon,
   });
 
   @override
@@ -288,21 +347,18 @@ class DashboardCard extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width * 0.19,
       height: 220.h,
-    padding: EdgeInsets.symmetric(
-      horizontal: 30,
-      vertical: 20
-    ),
-    //  padding: EdgeInsets.all(22.r),
+      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      //  padding: EdgeInsets.all(22.r),
       decoration: BoxDecoration(
         color: AppColor.bg1,
         borderRadius: BorderRadius.circular(20.r),
       ),
-      child:Row(
+      child: Row(
         children: [
           CircleAvatar(
             radius: 60,
             backgroundColor: AppColor.vegetableGreen,
-            child:  Icon(icon, size: 80,color: AppColor.animationGreen) ,
+            child: Icon(icon, size: 80, color: AppColor.animationGreen),
           ),
           Spacer(),
           Column(
@@ -310,34 +366,24 @@ class DashboardCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
 
             children: [
-              SizedBox(
-                height: 20,
+              SizedBox(height: 20),
+              Text(
+                data,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
               ),
-              Text(data,style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 30
-              ),),
-              Text(title, style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600
-              ),),
-              Text(description,style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500
-              ),),
-              SizedBox(
-                height: 20,
+              Text(
+                title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-
+              Text(
+                description,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 20),
             ],
-          )
-
+          ),
         ],
       ),
     );
   }
 }
-
-
-
-

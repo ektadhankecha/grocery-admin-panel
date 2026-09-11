@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:grocery_admin_panel/model/order_model.dart';
+import 'package:grocery_admin_panel/screen/orders/order_provider.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
+import 'package:provider/provider.dart';
 
 class OrderDetail extends StatelessWidget {
   final VoidCallback? onBack;
-  final Map<String, dynamic>? orderData;
+  final OrderModel? order;
+  //final Map<String, dynamic>? orderData;
 
-  const OrderDetail({super.key, this.onBack, this.orderData});
+  const OrderDetail({super.key, this.onBack, this.order});
 
   @override
   Widget build(BuildContext context) {
+    // final address = order?.address.toString()
     return Scaffold(
       backgroundColor: AppColor.bg3,
       body: Column(
@@ -18,8 +23,20 @@ class OrderDetail extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
-                child: TitleClass(title: "Order Detail", isStatus: true),
+              Expanded(
+                child: TitleClass(
+                  title: "Order Detail",
+                  isStatus: true,
+                  initialStatus: order?.status,
+                  onStatusChanged: (newStatus) {
+                    if (order?.docId != null && order!.docId.isNotEmpty) {
+                      context.read<OrderProvider>().updateOrderStatus(
+                        order!.docId,
+                        newStatus,
+                      );
+                    }
+                  },
+                ),
               ),
               if (onBack != null)
                 IconButton(
@@ -77,9 +94,8 @@ class OrderDetail extends StatelessWidget {
                                 ),
                                 SizedBox(height: 6.h),
                                 Text(
-                                  orderData?['id'] != null
-                                      ? orderData!['id'].toString()
-                                      : "--",
+                                  order?.orderNumber ?? '--',
+
                                   style: const TextStyle(
                                     fontSize: 16,
                                     color: Colors.black87,
@@ -93,7 +109,6 @@ class OrderDetail extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-
                                   "Order Date",
                                   style: TextStyle(
                                     fontSize: 14,
@@ -102,8 +117,8 @@ class OrderDetail extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 6.h),
-                                 Text(
-                                  orderData?['date']?.toString() ?? "--",
+                                Text(
+                                  order?.orderDate ?? '--',
 
                                   style: TextStyle(
                                     fontSize: 16,
@@ -230,56 +245,112 @@ class OrderDetail extends StatelessWidget {
                                       DataColumn(
                                         label: Text(
                                           'Product ID',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                       DataColumn(
                                         label: Text(
                                           'Product',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                       DataColumn(
                                         label: Text(
                                           'Quantity',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                       DataColumn(
                                         label: Text(
                                           'Total Amount',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
-                                    rows: orderData != null
-                                        ? [
-                                            DataRow(
+                                    rows:
+                                        (order?.items != null &&
+                                            order!.items.isNotEmpty)
+                                        ? order!.items.map((item) {
+                                            return DataRow(
                                               cells: [
                                                 DataCell(
                                                   Text(
-                                                    orderData!['id']?.toString() ?? '--',
+                                                    item.productId.isNotEmpty
+                                                        ? item.productId
+                                                        : (order?.orderNumber ??
+                                                              '--'),
                                                   ),
                                                 ),
                                                 DataCell(
                                                   Text(
-                                                    orderData!['name']?.toString() ?? '--',
+                                                    item.productName.isNotEmpty
+                                                        ? item.productName
+                                                        : '--',
                                                   ),
                                                 ),
                                                 DataCell(
                                                   Text(
-                                                    orderData!['quantity']?.toString() ?? '1',
+                                                    item.quantity.toString(),
                                                   ),
                                                 ),
                                                 DataCell(
                                                   Text(
-                                                    orderData!['price']?.toString() ?? '--',
+                                                    '\$${item.price.toStringAsFixed(2)}',
                                                   ),
                                                 ),
                                               ],
-                                            ),
-                                          ]
-                                        : const [],
+                                            );
+                                          }).toList()
+                                        : (order != null
+                                              ? [
+                                                  DataRow(
+                                                    cells: [
+                                                      DataCell(
+                                                        Text(
+                                                          order
+                                                                      ?.productId
+                                                                      .isNotEmpty ==
+                                                                  true
+                                                              ? order!.productId
+                                                              : (order?.orderNumber ??
+                                                                    '--'),
+                                                        ),
+                                                      ),
+                                                      DataCell(
+                                                        Text(
+                                                          order
+                                                                      ?.productName
+                                                                      .isNotEmpty ==
+                                                                  true
+                                                              ? order!
+                                                                    .productName
+                                                              : '--',
+                                                        ),
+                                                      ),
+                                                      DataCell(
+                                                        Text(
+                                                          order?.quantity
+                                                                  .toString() ??
+                                                              '1',
+                                                        ),
+                                                      ),
+                                                      DataCell(
+                                                        Text(
+                                                          '\$${order?.totalPrice ?? 0.0}',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ]
+                                              : const []),
                                   ),
                                 ),
                               ],
@@ -317,8 +388,9 @@ class OrderDetail extends StatelessWidget {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFFFEAEA),
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
+                                        borderRadius: BorderRadius.circular(
+                                          8.r,
+                                        ),
                                       ),
                                       child: const Text(
                                         "Not Paid",
@@ -353,8 +425,7 @@ class OrderDetail extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      orderData?['price']?.toString() ??
-                                          "\$0.00",
+                                      order?.totalPrice.toString() ?? "\$0.00",
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
@@ -409,8 +480,7 @@ class OrderDetail extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      orderData?['price']?.toString() ??
-                                          "\$0.00",
+                                      order?.totalPrice.toString() ?? "\$0.00",
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -469,7 +539,7 @@ class OrderDetail extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                orderData?['customer']?.toString() ?? "--",
+                                order?.name.toString() ?? "--",
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -478,7 +548,7 @@ class OrderDetail extends StatelessWidget {
                               ),
                             ),
                             // Email Address ListTile
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: CircleAvatar(
                                 backgroundColor: AppColor.bg3,
@@ -495,7 +565,7 @@ class OrderDetail extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                "ekta@gmail.com",
+                                order?.email.toString() ?? "--",
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -504,7 +574,7 @@ class OrderDetail extends StatelessWidget {
                               ),
                             ),
                             // Contact ListTile
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: CircleAvatar(
                                 backgroundColor: AppColor.bg3,
@@ -521,7 +591,7 @@ class OrderDetail extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                "+1 (555) 382-9471",
+                                order?.contact.toString() ?? "--",
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -530,7 +600,7 @@ class OrderDetail extends StatelessWidget {
                               ),
                             ),
                             // Shipping Address ListTile
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: CircleAvatar(
                                 backgroundColor: AppColor.bg3,
@@ -547,7 +617,7 @@ class OrderDetail extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                "123 Market St, New York, NY",
+                                "${order?.address ?? ''}, ${order?.city ?? ''}, ${order?.country ?? ''} - ${order?.zipCode ?? ''}",
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -556,7 +626,7 @@ class OrderDetail extends StatelessWidget {
                               ),
                             ),
                             // Payment ListTile
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: CircleAvatar(
                                 backgroundColor: AppColor.bg3,
@@ -573,7 +643,7 @@ class OrderDetail extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                "Cash on delivery",
+                                "Not Paid",
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,

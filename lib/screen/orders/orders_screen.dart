@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_admin_panel/model/order_model.dart';
 import 'package:grocery_admin_panel/screen/orders/order_detail.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
 import 'package:grocery_admin_panel/utils/app_icon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:grocery_admin_panel/screen/dashboard/recent_order_data.dart';
+import 'package:provider/provider.dart';
+import 'order_provider.dart';
 
 class OrdersScreen extends StatefulWidget {
 
@@ -25,7 +27,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   String selectedButton = "All Orders";
   bool showOrderDetail = false;
-  Map<String, dynamic>? selectedOrder;
+  OrderModel? selectedOrder;
   final TextEditingController searchController = TextEditingController();
   String searchQuery = "";
 
@@ -35,27 +37,41 @@ class _OrdersScreenState extends State<OrdersScreen> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get filteredOrders {
-    return recentOrderList.where((order) {
-      // 1. Status Filter
+
+
+  @override
+  Widget build(BuildContext context) {
+    final orderProvider = context.watch<OrderProvider>();
+    final order = orderProvider.orderList;
+    final orderLength = order.length;
+    final pendingOrder = order.where((o) => o.status.toLowerCase() == "pending").toList();
+    final pending = pendingOrder.length;
+    final processingOrder = order.where((o) => o.status.toLowerCase() == "processing").toList();
+    final processing = processingOrder.length;
+    final outOfDeliveryOrder = order.where((o) => o.status.toLowerCase() == "out of delivery").toList();
+    final outOfDelivery = outOfDeliveryOrder.length;
+    final deliveredOrder = order.where((o) => o.status.toLowerCase() == "delivered").toList();
+    final delivered = deliveredOrder.length;
+    final filteredOrders = order.where((order){
       final bool matchesStatus = selectedButton == "All Orders" ||
-          order['status']?.toString().toLowerCase() ==
-              selectedButton.toLowerCase();
+      order.status.toLowerCase().contains(selectedButton.toLowerCase());
 
       // 2. Search Filter on Order ID
-      final String idStr = order['id']?.toString() ?? '';
+       final String  idStr = order.orderNumber.toString();
       final bool matchesSearch = searchQuery.isEmpty ||
           idStr.toLowerCase().contains(searchQuery.toLowerCase());
 
       return matchesStatus && matchesSearch;
     }).toList();
-  }
 
-  @override
-  Widget build(BuildContext context) {
     if (showOrderDetail) {
+      final currentOrder = order.firstWhere(
+            (o) => o.docId == selectedOrder?.docId || o.orderNumber == selectedOrder?.orderNumber,
+        orElse: () => selectedOrder!,
+      );
+
       return OrderDetail(
-        orderData : selectedOrder,
+        order: selectedOrder,
         onBack: () {
           setState(() {
             showOrderDetail = false;
@@ -73,15 +89,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
           SizedBox(height: 30.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              OrdersContainer(title: "Total Orders", count: "1000"),
-              OrdersContainer(title: "Total Pending Orders", count: "100"),
-              OrdersContainer(title: "Total Processing Orders", count: "200"),
+            children:  [
+              OrdersContainer(title: "Total Orders",
+                  count: orderLength.toString()
+              ),
+              OrdersContainer(title: "Total Pending Orders",
+                  count: pending.toString()
+              ),
+              OrdersContainer(title: "Total Processing Orders", count: processing.toString()),
               OrdersContainer(
                 title: "Total On Delivery Orders",
-                count: "150",
+                count: outOfDelivery.toString(),
               ),
-              OrdersContainer(title: "Total Complete Orders", count: "550"),
+              OrdersContainer(title: "Total Complete Orders", count: delivered.toString()),
             ],
           ),
           SizedBox(height: 30.h),
@@ -290,12 +310,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 rows: filteredOrders.map((order) {
                                   return DataRow(
                                     cells: [
-                                      DataCell(Text(order['id'].toString())),
-                                      DataCell(Text(order['name'].toString())),
-                                      DataCell(Text(order['date'].toString())),
-                                      DataCell(Text(order['status'].toString())),
-                                      DataCell(Text(order['price'].toString())),
-                                      DataCell(Text(order['customer'].toString())),
+                                      DataCell(Text(order.orderNumber.toString())),
+                                      DataCell(Text(order.productName.toString())),
+                                      DataCell(Text(order.orderDate.toString())),
+                                      DataCell(Text(order.status.toString())),
+                                      DataCell(Text(order.totalPrice.toString())),
+                                      DataCell(Text(order.name.toString())),
                                       DataCell(
                                         IconButton(
                                           onPressed: () {
@@ -330,7 +350,7 @@ class OrdersContainer extends StatelessWidget {
   final String title;
   final String count;
 
-  const OrdersContainer({super.key, required this.title, required this.count});
+   OrdersContainer({super.key, required this.title, required this.count});
 
   @override
   Widget build(BuildContext context) {

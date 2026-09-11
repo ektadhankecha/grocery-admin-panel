@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:grocery_admin_panel/screen/orders/order_provider.dart';
 import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_admin_panel/home_screen/home_provider.dart';
 import 'package:grocery_admin_panel/home_screen/home_screen.dart';
 import 'firebase_options.dart';
 import 'package:grocery_admin_panel/screen/categories/category_provider.dart';
+import 'package:grocery_admin_panel/screen/customers/customer_provider.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,9 @@ Future<void> main() async{
       providers: [
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider())
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
       ],
       child: const MyApp(),
     ),

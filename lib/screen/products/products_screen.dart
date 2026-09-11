@@ -135,6 +135,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
               p.id.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
+
+
     final buttonList = [
       "All Products",
       ...categoryProvider.categories.map((c) => c.name),

@@ -7,6 +7,7 @@ class TitleClass extends StatefulWidget {
 
   final bool isEdit;
   final bool isStatus;
+  final String? initialStatus;
   final VoidCallback? onEditTap;
   final ValueChanged<String>? onStatusChanged;
 
@@ -16,6 +17,7 @@ class TitleClass extends StatefulWidget {
     this.isEdit = false,
 
     this.isStatus = false,
+    this.initialStatus,
     this.onEditTap,
     this.onStatusChanged,
   });
@@ -33,6 +35,13 @@ class _TitleClassState extends State<TitleClass> {
   ];
   String selectedStatus = "Pending";
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialStatus != null && statusList.contains(widget.initialStatus)) {
+      selectedStatus = widget.initialStatus!;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Row(

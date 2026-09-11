@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_admin_panel/model/category_model.dart';
@@ -419,6 +420,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
+    final productProvider = context.watch<ProductProvider>();
     final categories = categoryProvider.categories;
 
     // Filter categories by search
@@ -595,7 +597,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 ),
                             itemBuilder: (context, index) {
                               final category = filteredCategories[index];
-                              final productCount = categoryProvider.getProductCount(category.name);
+                              final productCount = categoryProvider.getProductCount(category.name,productProvider.products);
 
                               return Container(
                                 padding: EdgeInsets.symmetric(
@@ -703,7 +705,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                           onTap: () {
                                             context
                                                 .read<CategoryProvider>()
-                                                .deleteCategory(category.id);
+                                                .deleteCategory(category.id,category.name);
                                           },
                                           borderRadius: BorderRadius.circular(
                                             8.r,
