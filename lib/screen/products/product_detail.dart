@@ -59,13 +59,10 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
-
   bool isEditing = false;
-
-
   Color selectedColor = Color(productColors.first);
 
-
+   final TextEditingController productIdController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
@@ -84,7 +81,7 @@ class _ProductDetailState extends State<ProductDetail> {
     if (product != null) {
       // Existing product: load data into controllers and state
       selectedColor = product.bgColor;
-
+      productIdController.text = product.productId;
       nameController.text = product.name;
       imageController.text = product.image;
       categoryController.text = product.category;
@@ -100,7 +97,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   @override
   void dispose() {
-
+    productIdController.dispose();
     nameController.dispose();
     imageController.dispose();
     categoryController.dispose();
@@ -128,7 +125,8 @@ class _ProductDetailState extends State<ProductDetail> {
   // FORM VALIDATION & ACTIONS
 
   bool validateFields() {
-    if (nameController.text.trim().isEmpty ||
+    if (productIdController.text.trim().isEmpty ||
+    nameController.text.trim().isEmpty ||
         imageController.text.trim().isEmpty ||
         categoryController.text.trim().isEmpty ||
         priceController.text.trim().isEmpty ||
@@ -140,117 +138,10 @@ class _ProductDetailState extends State<ProductDetail> {
     }
     return true;
   }
-  //
-  // void handleButtonAction({ProductModel? product}) {
-  // //  final ProductModel? product;
-  //   if (isAddMode) {
-  //     ProductProvider().addProduct(name: nameController.text.trim(),
-  //         category: categoryController.text.trim(),
-  //         image: imageController.text.trim(),
-  //         bgColor: selectedColor,
-  //         stock: stockController.text.trim(),
-  //         price: priceController.text.trim(),
-  //         quantity: quantityController.text.trim(),
-  //         description: descriptionController.text.trim());
-  //   } else if (!isEditing) {
-  //     // Switch from view mode to edit mode
-  //     setState(() => isEditing = true);
-  //   } else {
-  //     ProductProvider().updateProduct(
-  //         id: product.id,
-  //         name: nameController.text.trim(),
-  //         category: categoryController.text.trim(),
-  //         image: imageController.text.trim(),
-  //         bgColor: selectedColor,
-  //         stock: stockController.text.trim(),
-  //         price: priceController.text.trim(),
-  //         quantity: quantityController.text.trim(),
-  //         description: descriptionController.text.trim());
-  //   }
-  // }
-
-  // void saveNewProduct() {
-  //   if (!validateFields()) return;
-  //
-  //   // Clean user-entered ID
-  //   // final cleanIdStr = idController.text
-  //   //     .replaceAll('#', '')
-  //   //     .replaceAll('PRD-', '')
-  //   //     .replaceAll('prd-', '')
-  //   //     .trim();
-  //
-  //  // final int? parsedId = int.tryParse(cleanIdStr);
-  //  //  if (parsedId == null || parsedId <= 0) {
-  //  //    showSnackBar(
-  //  //      "Please enter a valid numeric Product ID (e.g. 101 or #PRD-101)",
-  //  //      isError: true,
-  //  //    );
-  //  //    return;
-  //  //  }
-  //  //
-  //  //  final int newId = parsedId;
-  //
-  //   // final newProduct = ProductModel(
-  //   //   id: ,
-  //   //   name: nameController.text.trim(),
-  //   //   category: categoryController.text.trim(),
-  //   //   image: imageController.text.trim(),
-  //   //   bgColor: selectedColor,
-  //   //   stock: stockController.text.trim(),
-  //   //   price: formatPrice(priceController.text.trim()),
-  //   //   quantity: quantityController.text.trim(),
-  //   //   description: descriptionController.text.trim(),
-  //   // );
-  //
-  //   showSnackBar("Product added successfully!");
-  //   widget.onSave?.call(newProduct);
-  //   widget.onBack?.call();
-  // }
-
-  // void updateExistingProduct() {
-  //   if (!validateFields()) return;
-  //
-  //   final updatedProduct = ProductModel(
-  //     id: widget.product!.id,
-  //     name: nameController.text.trim(),
-  //     category: categoryController.text.trim(),
-  //     image: imageController.text.trim(),
-  //     bgColor: selectedColor,
-  //     stock: stockController.text.trim(),
-  //     price: formatPrice(priceController.text.trim()),
-  //     quantity: quantityController.text.trim(),
-  //     description: descriptionController.text.trim(),
-  //   );
-  //
-  //   showSnackBar("Product updated successfully!");
-  //   widget.onSave?.call(updatedProduct);
-  //   setState(() => isEditing = false);
-  //   widget.onBack?.call();
-  // }
 
 
 
 
-  // IMAGE PICKER & DIALOGS
-
-  // Future<void> pickImage() async {
-  //   try {
-  //     final XFile? image = await picker.pickImage(
-  //       source: ImageSource.gallery,
-  //       maxWidth: 400,
-  //       maxHeight: 400,
-  //       imageQuality: 80,
-  //     );
-  //     if (image != null) {
-  //       final bytes = await image.readAsBytes();
-  //       setState(() {
-  //         pickedImageBytes = bytes;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error picking image: $e");
-  //   }
-  // }
 
   void showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -344,9 +235,16 @@ class _ProductDetailState extends State<ProductDetail> {
                   Center(child:   ElevatedButton(
                    // onPressed: handleButtonAction,
                     onPressed: () async {
+                      if(!isAddMode && !isEditing){
+                        setState(() {
+                          isEditing = true;
+                        });
+                        return;
+                      }
                       if(!validateFields()) return;
                       if (isAddMode) {
                         await context.read<ProductProvider>().addProduct(
+                          productId: productIdController.text.trim(),
                             name: nameController.text.trim(),
                             category: categoryController.text.trim(),
                             image: imageController.text.trim(),
@@ -359,12 +257,10 @@ class _ProductDetailState extends State<ProductDetail> {
                         if (context.mounted) {
                           widget.onBack?.call();
                         }
-                      } else if (!isEditing) {
-                        // Switch from view mode to edit mode
-                        setState(() => isEditing = true);
                       } else {
                         await context.read<ProductProvider>().updateProduct(
                             id: widget.product!.id,
+                            productId: productIdController.text.trim(),
                             name: nameController.text.trim(),
                             category: categoryController.text.trim(),
                             image: imageController.text.trim(),
@@ -431,12 +327,12 @@ class _ProductDetailState extends State<ProductDetail> {
             },
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
-              // buildTableRow(
-              //   title: "Product ID",
-              //   controller: idController,
-              //   hintText: "e.g. #PRD-101",
-              //   readOnly: !isEditing,
-              // ),
+              buildTableRow(
+                title: "Product ID",
+                controller: productIdController,
+                hintText: "e.g. #PRD-101",
+                readOnly: !isEditing,
+              ),
               buildTableRow(
                 title: "Product Name",
                 controller: nameController,

@@ -22,6 +22,7 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> addProduct({
+    required String productId,
     required String name,
     required String category,
     required String image,
@@ -32,6 +33,7 @@ class ProductProvider extends ChangeNotifier {
     required String description,
   }) async{
     await productCollection.add({
+      'productId' :productId,
       'name' : name,
       'category' : category,
       'image' : image,
@@ -45,6 +47,7 @@ class ProductProvider extends ChangeNotifier {
 
   Future<void> updateProduct({
     required String id,
+    required String productId,
     required String name,
     required String category,
     required String image,
@@ -55,6 +58,7 @@ class ProductProvider extends ChangeNotifier {
     required String description,
   }) async{
     await productCollection.doc(id).update({
+      'productId' : productId,
       'name' : name,
       'category' : category,
       'image' : image,

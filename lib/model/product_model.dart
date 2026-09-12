@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class ProductModel {
   final String id;
+  final String productId;
   final String name;
   final String category;
   final String image;
@@ -14,6 +15,7 @@ class ProductModel {
 
   const ProductModel({
     required this.id,
+    required this.productId,
     required this.name,
     required this.category,
     required this.image,
@@ -26,6 +28,7 @@ class ProductModel {
   factory ProductModel.fromFirestore(Map<String, dynamic> data, String id) {
     return ProductModel(
       id: id,
+      productId: data['productId'] ?? '',
       name: data['name'] ?? '',
       category: data['category'] ?? '',
       image: data['image'] ?? '',
@@ -39,6 +42,7 @@ class ProductModel {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'productId' : productId,
       'name': name,
       'category': category,
       'image': image,

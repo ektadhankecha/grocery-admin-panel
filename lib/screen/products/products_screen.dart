@@ -25,27 +25,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
  // final product = ProductProvider().products;
   final TextEditingController searchController = TextEditingController();
 
- // late List<ProductModel> localProductList;
- //  List<ProductModel> get filteredProducts {
- //    return product.where((p) {
- //      final bool matchesCategory;
- //      if (selectedButton == "All Products") {
- //        matchesCategory = true;
- //      } else {
- //        final pCat = p.category.trim().toLowerCase();
- //        final sCat = selectedButton.trim().toLowerCase();
- //        matchesCategory =
- //            pCat == sCat || pCat.contains(sCat) || sCat.contains(pCat);
- //      }
- //
- //      final bool matchesSearch =
- //          searchQuery.isEmpty ||
- //          p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
- //          p.id.toString().contains(searchQuery);
- //
- //      return matchesCategory && matchesSearch;
- //    }).toList();
- //  }
+
 
 
 
@@ -132,6 +112,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       final bool matchesSearch =
           searchQuery.isEmpty ||
               p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              p.productId.toLowerCase().contains(searchQuery.toLowerCase()) ||
               p.id.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
@@ -412,14 +393,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             ),
                                           ),
                                         ),
-                                        // Text(
-                                        //   "#PRD-${product.id}",
-                                        //   style: TextStyle(
-                                        //     fontSize: 11.sp,
-                                        //     color: AppColor.textGray,
-                                        //     fontWeight: FontWeight.w500,
-                                        //   ),
-                                        // ),
+                                        Text(
+                                          "#PRD-${product.productId}",
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: AppColor.textGray,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                     // Center Product Icon Avatar

@@ -8,7 +8,7 @@ class OrderProvider extends ChangeNotifier {
   }
   List<OrderModel> orderList = [];
   void listenToOrder() {
-    FirebaseFirestore.instance.collection("Orders").snapshots().listen((snapshot) {
+    FirebaseFirestore.instance.collection("Orders").orderBy("orderNumber", descending: true).snapshots().listen((snapshot) {
       final List<OrderModel> loadedOrders = [];
       for (var doc in snapshot.docs) {
         try {
