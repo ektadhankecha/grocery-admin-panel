@@ -1,9 +1,6 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grocery_admin_panel/screen/products/product_provider.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_admin_panel/model/category_model.dart';
 import 'package:grocery_admin_panel/screen/categories/category_provider.dart';
@@ -53,7 +50,6 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
- // final ImagePicker picker = ImagePicker();
   final TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 
@@ -61,6 +57,60 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   void dispose() {
     searchController.dispose();
     super.dispose();
+  }
+
+  void showDeleteCategoryDialog(CategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColor.bg1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: const Text(
+          "Delete Category",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.black87,
+          ),
+        ),
+        content: Text(
+          "Are you sure you want to delete \"${category.name}\"?\nAll associated products will also be Deleted.",
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14, color: AppColor.textGray, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(
+                color: AppColor.textGray,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context
+                  .read<CategoryProvider>()
+                  .deleteCategory(category.id, category.name);
+              Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.dltRed,
+              foregroundColor: AppColor.bg1,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
   }
 
   // Open Add / Edit category dialog
@@ -702,11 +752,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                         ),
                                         SizedBox(width: 8.w),
                                         InkWell(
-                                          onTap: () {
-                                            context
-                                                .read<CategoryProvider>()
-                                                .deleteCategory(category.id,category.name);
-                                          },
+                                          onTap: () =>
+                                              showDeleteCategoryDialog(category),
                                           borderRadius: BorderRadius.circular(
                                             8.r,
                                           ),

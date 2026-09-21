@@ -1,13 +1,9 @@
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
-
 class ProductModel {
   final String id;
   final String productId;
   final String name;
   final String category;
   final String image;
-  final Color bgColor;
   final String stock;
   final String price;
   final String quantity;
@@ -19,7 +15,6 @@ class ProductModel {
     required this.name,
     required this.category,
     required this.image,
-    required this.bgColor,
     required this.stock,
     required this.price,
     required this.quantity,
@@ -32,7 +27,6 @@ class ProductModel {
       name: data['name'] ?? '',
       category: data['category'] ?? '',
       image: data['image'] ?? '',
-      bgColor: data["bgColor"] != null ? Color(data["bgColor"]) : Colors.white,
       stock: data["stock"] ?? '',
       price: data['price'] ?? '',
       quantity: data['quantity'] ?? '',
@@ -46,7 +40,6 @@ class ProductModel {
       'name': name,
       'category': category,
       'image': image,
-      'bgColor': bgColor.toARGB32(),
       'stock': stock,
       'price': price,
       'quantity': quantity,

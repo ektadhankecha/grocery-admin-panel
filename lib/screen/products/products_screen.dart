@@ -4,7 +4,6 @@ import 'package:grocery_admin_panel/screen/products/product_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_admin_panel/model/product_model.dart';
 import 'package:grocery_admin_panel/screen/categories/category_provider.dart';
-import 'package:grocery_admin_panel/screen/products/product_data.dart';
 import 'package:grocery_admin_panel/screen/products/product_detail.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
@@ -22,12 +21,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String searchQuery = "";
   bool showProductDetail = false;
   ProductModel? selectedProduct;
- // final product = ProductProvider().products;
   final TextEditingController searchController = TextEditingController();
-
-
-
-
 
   @override
   void dispose() {
@@ -68,16 +62,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: (){
-              ProductProvider().deleteProduct(product.id);
+            onPressed: () {
+              context.read<ProductProvider>().deleteProduct(product.id);
+              Navigator.pop(ctx);
             },
-            // onPressed: () {
-            //   setState(() {
-            //     ProductProvider().deleteProduct(product.id);
-            //   //  localProductList.removeWhere((p) => p.id == product.id);
-            //   });
-            //   Navigator.pop(ctx);
-            // },
+
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.dltRed,
               foregroundColor: AppColor.bg1,
@@ -111,12 +100,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       }
       final bool matchesSearch =
           searchQuery.isEmpty ||
-              p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              p.productId.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              p.id.toLowerCase().contains(searchQuery.toLowerCase());
+          p.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          p.productId.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          p.id.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
-
 
     final buttonList = [
       "All Products",
@@ -339,11 +327,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 ),
                             itemBuilder: (context, index) {
                               final product = filteredProducts[index];
-                              // final (categoryBgColor, categoryTextColor) =
-                              //     categoryProvider.getCategoryColors(
-                              //       product.category,
-                              //     );
-
                               return Container(
                                 padding: EdgeInsets.all(14.r),
                                 decoration: BoxDecoration(
@@ -364,7 +347,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   ],
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
@@ -379,7 +362,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             vertical: 4.h,
                                           ),
                                           decoration: BoxDecoration(
-                                         //   color: categoryBgColor,
                                             borderRadius: BorderRadius.circular(
                                               6.r,
                                             ),
@@ -389,7 +371,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                             style: TextStyle(
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w600,
-                                         //     color: categoryTextColor,
                                             ),
                                           ),
                                         ),
@@ -403,19 +384,24 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                         ),
                                       ],
                                     ),
-                                    // Center Product Icon Avatar
-                                    Center(
-                                      child: CircleAvatar(
-                                        radius:  35.r,
-                                        backgroundColor: product.bgColor,
-                                        child: Image.network(product.image,height: 40,width: 40,),
+                                    // Center Product Image
+                                    SizedBox(
+                                      height: 100,
+                                      width: 100,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          product.image,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
-                                 //Product Name
+
+                                    //Product Name
                                     Center(
                                       child: Text(
                                         product.name,
-                                        textAlign: TextAlign.center,
+
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
@@ -512,13 +498,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                         SizedBox(width: 8.w),
                                         // Delete Button
                                         InkWell(
-
-                                          onTap: () async {
-                                            await context.read<ProductProvider>().deleteProduct(product.id);
-                                            // if (context.mounted) {
-                                            //   Navigator.pop(context);
-                                            // }
-                              },
+                                          onTap: () => showDeleteDialog(product),
                                           borderRadius: BorderRadius.circular(
                                             8.r,
                                           ),

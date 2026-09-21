@@ -21,53 +21,12 @@ class ProductProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> addProduct({
-    required String productId,
-    required String name,
-    required String category,
-    required String image,
-    required Color bgColor,
-    required String stock,
-    required String price,
-    required String quantity,
-    required String description,
-  }) async{
-    await productCollection.add({
-      'productId' :productId,
-      'name' : name,
-      'category' : category,
-      'image' : image,
-      'bgColor' : bgColor.toARGB32(),
-      'stock' : stock,
-      'price' : price,
-      'quantity' : quantity,
-      'description' : description
-    });
+  Future<void> addProduct(ProductModel product) async{
+    await productCollection.add(product.toFirestore());
   }
 
-  Future<void> updateProduct({
-    required String id,
-    required String productId,
-    required String name,
-    required String category,
-    required String image,
-    required Color bgColor,
-    required String stock,
-    required String price,
-    required String quantity,
-    required String description,
-  }) async{
-    await productCollection.doc(id).update({
-      'productId' : productId,
-      'name' : name,
-      'category' : category,
-      'image' : image,
-      'bgColor' : bgColor.toARGB32(),
-      'stock' : stock,
-      'price' : price,
-      'quantity' : quantity,
-      'description' : description
-    });
+  Future<void> updateProduct(ProductModel product) async{
+    await productCollection.doc(product.id).update(product.toFirestore());
   }
 
   Future<void> deleteProduct(String id) async {

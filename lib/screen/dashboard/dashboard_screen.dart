@@ -26,9 +26,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final customerProvider = context.watch<CustomerProvider>();
     final top10Order = orderProvider.orderList.take(10).toList();
     final top10Product = productProvider.products.take(10).toList();
-      final order = orderProvider.orderList.length;
-      final product = productProvider.products.length;
-      final customer = customerProvider.customers.length;
+    final order = orderProvider.orderList.length;
+    final product = productProvider.products.length;
+    final customer = customerProvider.customers.length;
     return Scaffold(
       backgroundColor: AppColor.bg3,
       body: Column(
@@ -151,13 +151,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                   ),
-                                  leading: CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: product.bgColor,
-                                    child: Image.network(
-                                      product.image,
-                                      width: 30,
-                                      height: 30,
+                                  leading: SizedBox(
+                                    height: 50,
+                                    width: 50,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        product.image,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                   title: Text(

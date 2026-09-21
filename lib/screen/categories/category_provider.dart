@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:grocery_admin_panel/model/category_model.dart';
 import 'package:grocery_admin_panel/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:grocery_admin_panel/screen/products/product_provider.dart';
-import 'package:grocery_admin_panel/screen/products/product_data.dart';
 
 class CategoryProvider extends ChangeNotifier {
   final CollectionReference categoryCollection = FirebaseFirestore.instance
@@ -57,7 +55,6 @@ class CategoryProvider extends ChangeNotifier {
   }
 
   Future<void> deleteCategory(String id, String categoryName) async {
- //   await categoryCollection.doc(id).delete();
     final firestore = FirebaseFirestore.instance;
     final batch = firestore.batch();
     final productSnapshot = await firestore.collection("products").where("category", isEqualTo: categoryName).get();

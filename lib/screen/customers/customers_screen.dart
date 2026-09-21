@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:grocery_admin_panel/model/customer_model.dart';
 import 'package:grocery_admin_panel/screen/customers/customer_provider.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';

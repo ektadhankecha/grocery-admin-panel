@@ -1,58 +1,17 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:grocery_admin_panel/screen/products/product_provider.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:grocery_admin_panel/model/product_model.dart';
 import 'package:grocery_admin_panel/title_class.dart';
 import 'package:grocery_admin_panel/utils/app_color.dart';
 import 'package:provider/provider.dart';
-
-// 1. COLOR PALETTE CONSTANTS (ARGB32)
-
-const List<int> productColors = [
-  // Red
-  0xFFFFF1F0, 0xFFFFE4E1, 0xFFFFCCC7, 0xFFFFA39E, 0xFFFF7875,
-  0xFFFF4D4F, 0xFFF5222D, 0xFFCF1322, 0xFFA8071A, 0xFF820014,
-  // Green
-  0xFFF6FFED, 0xFFE6F2EA, 0xFFD9F7BE, 0xFFB7EB8F, 0xFF95DE64,
-  0xFF52C41A, 0xFF389E0D, 0xFF237804, 0xFF135200, 0xFF092B00,
-  // Pink
-  0xFFFFF0F6, 0xFFFEE1ED, 0xFFFFD6E7, 0xFFFFADD2, 0xFFFF85C0,
-  0xFFF759AB, 0xFFEB2F96, 0xFFC41D7F, 0xFF9E1068, 0xFF780650,
-  // Yellow
-  0xFFFEFFE6, 0xFFFFFBE6, 0xFFFFF1B8, 0xFFFFE58F, 0xFFFFD666,
-  0xFFFFC53D, 0xFFFAAD14, 0xFFD48806, 0xFFAD6800, 0xFF874D00,
-  // Orange
-  0xFFFFF7E6, 0xFFFFE7BA, 0xFFFFD591, 0xFFFFC069, 0xFFFFA940,
-  0xFFFA8C16, 0xFFD46B08, 0xFFAD4E00, 0xFF873800, 0xFF612500,
-  // Blue
-  0xFFE6F7FF, 0xFFBAE7FF, 0xFF91D5FF, 0xFF69C0FF, 0xFF40A9FF,
-  0xFF1890FF, 0xFF096DD9, 0xFF0050B3, 0xFF003A8C, 0xFF002766,
-  // Purple
-  0xFFF9F0FF, 0xFFEFDBFF, 0xFFD3ADF7, 0xFFB37FEB, 0xFF9254DE,
-  0xFF722ED1, 0xFF531DAB, 0xFF391085, 0xFF22075E, 0xFF120338,
-  // Teal
-  0xFFE6FFFB, 0xFFB5F5EC, 0xFF87E8DE, 0xFF5CDBD3, 0xFF36CFC9,
-  0xFF13C2C2, 0xFF08979C, 0xFF006D75, 0xFF00474F, 0xFF002329,
-  // Brown
-  0xFFFDF8F5, 0xFFF7EBE1, 0xFFEDD5C1, 0xFFDFBB9E, 0xFFCFA07C,
-  0xFFB88258, 0xFF9C643B, 0xFF7E4924, 0xFF5E3113, 0xFF3E1C07,
-  // Gray
-  0xFFFAFAFA, 0xFFF5F5F5, 0xFFE8E8E8, 0xFFD9D9D9, 0xFFBFBFBF,
-  0xFF8C8C8C, 0xFF595959, 0xFF434343, 0xFF262626, 0xFF141414,
-];
-
-// 2. PRODUCT DETAIL WIDGET
 
 class ProductDetail extends StatefulWidget {
   final ProductModel? product;
   final VoidCallback? onBack;
   final ValueChanged<ProductModel>? onSave;
 
-  const ProductDetail({super.key, this.product, this.onBack,
-   this.onSave
-  });
+  const ProductDetail({super.key, this.product, this.onBack, this.onSave});
 
   @override
   State<ProductDetail> createState() => _ProductDetailState();
@@ -60,9 +19,8 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail> {
   bool isEditing = false;
-  Color selectedColor = Color(productColors.first);
 
-   final TextEditingController productIdController = TextEditingController();
+  final TextEditingController productIdController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
@@ -80,7 +38,6 @@ class _ProductDetailState extends State<ProductDetail> {
 
     if (product != null) {
       // Existing product: load data into controllers and state
-      selectedColor = product.bgColor;
       productIdController.text = product.productId;
       nameController.text = product.name;
       imageController.text = product.image;
@@ -126,7 +83,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   bool validateFields() {
     if (productIdController.text.trim().isEmpty ||
-    nameController.text.trim().isEmpty ||
+        nameController.text.trim().isEmpty ||
         imageController.text.trim().isEmpty ||
         categoryController.text.trim().isEmpty ||
         priceController.text.trim().isEmpty ||
@@ -138,10 +95,6 @@ class _ProductDetailState extends State<ProductDetail> {
     }
     return true;
   }
-
-
-
-
 
   void showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -172,9 +125,7 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-
   // MAIN BUILD METHOD
-
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +135,6 @@ class _ProductDetailState extends State<ProductDetail> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 1. Screen Header (Title + Close Button)
-
           Row(
             children: [
               Expanded(child: TitleClass(title: screenTitle)),
@@ -210,86 +160,83 @@ class _ProductDetailState extends State<ProductDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Left Column (50%): Product Information Table Form
-                        Expanded(flex: 75, child: buildProductInfoSection()),
-                        SizedBox(width: 24.w),
-
-
-                        SizedBox(width: 24.w),
-
-                        // Right Column (25%): Background Color Picker Card
-                        Expanded(
-                          flex: 25,
-                          child: buildColorSelectionSection(),
-                        ),
-                      ],
-                    ),
-                  ),
+                  Expanded(child: buildProductInfoSection()),
                   SizedBox(height: 20.h),
 
                   // Bottom Centered Action Button (Save / Edit / Update)
-                  Center(child:   ElevatedButton(
-                   // onPressed: handleButtonAction,
-                    onPressed: () async {
-                      if(!isAddMode && !isEditing){
-                        setState(() {
-                          isEditing = true;
-                        });
-                        return;
-                      }
-                      if(!validateFields()) return;
-                      if (isAddMode) {
-                        await context.read<ProductProvider>().addProduct(
-                          productId: productIdController.text.trim(),
-                            name: nameController.text.trim(),
-                            category: categoryController.text.trim(),
-                            image: imageController.text.trim(),
-                            bgColor: selectedColor,
-                            stock: stockController.text.trim(),
-                            price: priceController.text.trim(),
-                            quantity: quantityController.text.trim(),
-                            description: descriptionController.text.trim());
-                        showSnackBar("Product added successfully!");
-                        if (context.mounted) {
-                          widget.onBack?.call();
+                  Center(
+                    child: ElevatedButton(
+                      // onPressed: handleButtonAction,
+                      onPressed: () async {
+                        if (!isAddMode && !isEditing) {
+                          setState(() {
+                            isEditing = true;
+                          });
+                          return;
                         }
-                      } else {
-                        await context.read<ProductProvider>().updateProduct(
-                            id: widget.product!.id,
+                        if (!validateFields()) return;
+                        if (isAddMode) {
+                          final newProduct = ProductModel(
+                            id: '', // Firestore will auto-generate the document ID
                             productId: productIdController.text.trim(),
                             name: nameController.text.trim(),
                             category: categoryController.text.trim(),
                             image: imageController.text.trim(),
-                            bgColor: selectedColor,
                             stock: stockController.text.trim(),
                             price: priceController.text.trim(),
                             quantity: quantityController.text.trim(),
-                            description: descriptionController.text.trim());
-                        showSnackBar("Product updated successfully!");
-                        if (context.mounted) {
-                          setState(() => isEditing = false);
-                          widget.onBack?.call();
+                            description: descriptionController.text.trim(),
+                          );
+                          await context.read<ProductProvider>().addProduct(
+                            newProduct,
+                          );
+                          showSnackBar("Product added successfully!");
+                          if (context.mounted) {
+                            widget.onBack?.call();
+                          }
+                        } else {
+                          final updatedProduct = ProductModel(
+                            id: widget.product!.id, // Existing Firestore doc ID
+                            productId: productIdController.text.trim(),
+                            name: nameController.text.trim(),
+                            category: categoryController.text.trim(),
+                            image: imageController.text.trim(),
+                            stock: stockController.text.trim(),
+                            price: priceController.text.trim(),
+                            quantity: quantityController.text.trim(),
+                            description: descriptionController.text.trim(),
+                          );
+                          await context.read<ProductProvider>().updateProduct(
+                            updatedProduct,
+                          );
+                          showSnackBar("Product updated successfully!");
+                          if (context.mounted) {
+                            setState(() => isEditing = false);
+                            widget.onBack?.call();
+                          }
                         }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.animationGreen,
-                      foregroundColor: AppColor.bg1,
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(horizontal: 48.w, vertical: 14.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColor.animationGreen,
+                        foregroundColor: AppColor.bg1,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 48.w,
+                          vertical: 14.h,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                      ),
+                      child: Text(
+                        buttonText,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      buttonText,
-                      style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
-                    ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -299,25 +246,20 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-
-  // MODULAR UI COMPONENTS
-
-
-
-
   /// Left Column: Product details table form.
   Widget buildProductInfoSection() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Text("Product Information",
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
+          Text(
+            "Product Information",
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
           SizedBox(height: 16.h),
           Table(
             border: TableBorder.all(color: AppColor.dividerLine, width: 1),
@@ -383,7 +325,6 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-
   /// Single table row for product form fields.
   TableRow buildTableRow({
     required String title,
@@ -433,297 +374,4 @@ class _ProductDetailState extends State<ProductDetail> {
       ],
     );
   }
-
-  /// Middle Column: Product image container.
-  // Widget buildImageSection() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //     Text(
-  //     "Product Image",
-  //     style: const TextStyle(
-  //       fontSize: 20,
-  //       fontWeight: FontWeight.bold,
-  //       color: Colors.black87,
-  //     ),
-  //   ),
-  //       SizedBox(height: 16.h),
-  //       Container(
-  //         width: double.infinity,
-  //         height: 320.h,
-  //         decoration: BoxDecoration(
-  //           color: selectedColor,
-  //           borderRadius: BorderRadius.circular(20.r),
-  //           border: Border.all(color: AppColor.dividerLine, width: 1.5),
-  //         ),
-  //         child: buildImageContent(),
-  //       ),
-  //     ],
-  //   );
-  // }
-  //
-  // /// Internal widget rendering the product image (memory bytes or asset path), or upload placeholder.
-  // Widget buildImageContent() {
-  //   // 1. Resolve image provider widget (picked bytes or asset path)
-  //   Widget? imageWidget;
-  //   if (pickedImageBytes != null) {
-  //     imageWidget = Image.memory(pickedImageBytes!, fit: BoxFit.contain);
-  //   } else if (widget.product?.image != null && widget.product!.image!.isNotEmpty) {
-  //     imageWidget = Image.asset(
-  //       widget.product!.image!,
-  //       fit: BoxFit.contain,
-  //       errorBuilder: (context, error, stackTrace) => const Center(
-  //         child: Icon(Icons.broken_image_outlined, size: 48, color: Colors.black54),
-  //       ),
-  //     );
-  //   }
-  //
-  //   // 2. If an image is available, render inside full container with edit badge
-  //   if (imageWidget != null) {
-  //     return InkWell(
-  //       onTap: isEditing ? pickImage : null,
-  //       mouseCursor: isEditing ? SystemMouseCursors.click : SystemMouseCursors.basic,
-  //       borderRadius: BorderRadius.circular(20.r),
-  //       child: ClipRRect(
-  //         borderRadius: BorderRadius.circular(20.r),
-  //         child: Stack(
-  //           fit: StackFit.expand,
-  //           alignment: Alignment.center,
-  //           children: [
-  //             Padding(
-  //               padding: EdgeInsets.all(16.r),
-  //               child: imageWidget,
-  //             ),
-  //             if (isEditing) ...[
-  //               buildEditBadge(),
-  //               Positioned(
-  //                 bottom: 12.h,
-  //                 child: Container(
-  //                   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.black.withValues(alpha: 0.6),
-  //                     borderRadius: BorderRadius.circular(20.r),
-  //                   ),
-  //                   child: Text(
-  //                     "Click to change photo",
-  //                     style: TextStyle(
-  //                       fontSize: 11.sp,
-  //                       fontWeight: FontWeight.w500,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ],
-  //         ),
-  //       ),
-  //     );
-  //   }
-  //
-  //   // 3. Fallback upload placeholder (no image yet)
-  //   return InkWell(
-  //     onTap: isEditing ? pickImage : null,
-  //     mouseCursor: isEditing ? SystemMouseCursors.click : SystemMouseCursors.basic,
-  //     borderRadius: BorderRadius.circular(20.r),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         Container(
-  //           padding: EdgeInsets.all(18.r),
-  //           decoration: BoxDecoration(
-  //             color: AppColor.lightGray.withValues(alpha: 0.3),
-  //             shape: BoxShape.circle,
-  //           ),
-  //           child: Icon(
-  //             Icons.camera_alt_outlined,
-  //             size: 40.r,
-  //             color: AppColor.textGray,
-  //           ),
-  //         ),
-  //         SizedBox(height: 14.h),
-  //         Text(
-  //           "Upload product photo",
-  //           style: TextStyle(
-  //             fontSize: 15.sp,
-  //             fontWeight: FontWeight.w600,
-  //             color: Colors.black87,
-  //           ),
-  //         ),
-  //         SizedBox(height: 4.h),
-  //         Text(
-  //           "Click to browse files (PNG, JPG)",
-  //           style: TextStyle(fontSize: 12.sp, color: AppColor.textGray),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
-  // /// Small floating edit badge on the image card.
-  // Widget buildEditBadge() {
-  //   return Positioned(
-  //     top: 14.h,
-  //     right: 14.w,
-  //     child: Container(
-  //       padding: EdgeInsets.all(6.r),
-  //       decoration: const BoxDecoration(
-  //         color: AppColor.animationGreen,
-  //         shape: BoxShape.circle,
-  //       ),
-  //       child: const Icon(Icons.edit_outlined, color: AppColor.bg1, size: 16),
-  //     ),
-  //   );
-  // }
-
-  /// Right Column: Clean continuous color palette of all shades (10 per family) and selected color info.
-  Widget buildColorSelectionSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-      Text("BackGround Color",
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Colors.black87,
-      ),
-    ),
-        SizedBox(height: 16.h),
-        Container(
-          width: double.infinity,
-          height: 320.h,
-          padding: EdgeInsets.all(16.r),
-          decoration: BoxDecoration(
-            color: AppColor.bg3,
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: AppColor.dividerLine, width: 1.5),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // All Color Shades Swatches Grid
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 8.w,
-                    runSpacing: 8.h,
-                    children: productColors.map((argb) {
-                      final color = Color(argb);
-                      final bool isSelected =
-                          selectedColor.toARGB32() == argb;
-                      final bool isDark = color.computeLuminance() < 0.45;
-
-                      return Tooltip(
-                        message: "0x${argb.toRadixString(16).padLeft(8, '0').toUpperCase()}",
-                        child: InkWell(
-                          onTap: isEditing
-                              ? () {
-                                  setState(() {
-                                    selectedColor = color;
-                                  });
-                                }
-                              : null,
-                          mouseCursor: isEditing
-                              ? SystemMouseCursors.click
-                              : SystemMouseCursors.basic,
-                          borderRadius: BorderRadius.circular(16.r),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            width: 28.r,
-                            height: 28.r,
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.black
-                                    : AppColor.dividerLine,
-                                width: isSelected ? 2.5 : 1,
-                              ),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: color.withValues(alpha: 0.6),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: isSelected
-                                ? Center(
-                                    child: Icon(
-                                      Icons.check,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black,
-                                      size: 16.r,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10.h),
-
-              // Selected Color Info Box
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: AppColor.bg1,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColor.dividerLine),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 24.r,
-                      height: 24.r,
-                      decoration: BoxDecoration(
-                        color: selectedColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColor.dividerLine),
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Selected Color",
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              color: AppColor.textGray,
-                            ),
-                          ),
-                          Text(
-                            "0x${selectedColor.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}",
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-
-
 }
